@@ -59,8 +59,8 @@
 							required: true
 						},
 						vault: {
-							vaultCard: true,
-							allowVaultCardOverride: true
+							vaultCard: false,
+							allowVaultCardOverride: false
 						}
 					}
 				};
