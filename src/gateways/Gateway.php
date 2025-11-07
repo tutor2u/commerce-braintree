@@ -520,40 +520,40 @@ class Gateway extends BaseGateway
 				'options' => ['submitForSettlement' => true],
 			];
 
-			// deviceData
-
-			if ($form->nonce) {
-				$data['paymentMethodNonce'] = $form->nonce;
-				// When using a nonce, always pass customer data as nested object, never customerId
-				if ($order->customer) {
+			// Set customer data first - but will override customerId below if using nonce
+			if ($order->customer) {
+				if ($this->getCustomer($order->customer)) {
+					$data['customerId'] = $order->customer->uid;
+				} else {
 					$data['customer'] = [
 						'firstName' => $order->customer->firstName,
 						'lastName' => $order->customer->lastName,
 						'email' => $order->email,
 					];
-				} else {
-					$data['customer'] = [
-						'email' => $order->email,
-					];
 				}
-			} elseif ($form->token) {
-				$data['paymentMethodToken'] = $form->token;
-				// When using a stored token, we need customerId
-				if ($order->customer) {
-					if ($this->getCustomer($order->customer)) {
-						$data['customerId'] = $order->customer->uid;
-					} else {
+			} else {
+				$data['customer'] = [
+					'email' => $order->email,
+				];
+			}
+
+			// deviceData
+
+			if ($form->nonce) {
+				$data['paymentMethodNonce'] = $form->nonce;
+				// IMPORTANT: Remove customerId when using nonce - pass customer data as nested object instead
+				if (isset($data['customerId'])) {
+					unset($data['customerId']);
+					if ($order->customer) {
 						$data['customer'] = [
 							'firstName' => $order->customer->firstName,
 							'lastName' => $order->customer->lastName,
 							'email' => $order->email,
 						];
 					}
-				} else {
-					$data['customer'] = [
-						'email' => $order->email,
-					];
 				}
+			} elseif ($form->token) {
+				$data['paymentMethodToken'] = $form->token;
 			}
 			if ($form->deviceData) {
 				$data['deviceData'] = $form->deviceData;
