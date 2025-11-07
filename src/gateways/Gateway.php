@@ -539,6 +539,9 @@ class Gateway extends BaseGateway
 
 			// deviceData
 
+			// Log what we're working with
+			Craft::error('Braintree form data: nonce=' . ($form->nonce ?? 'NULL') . ', token=' . ($form->token ?? 'NULL'), __METHOD__);
+
 			if ($form->nonce) {
 				$data['paymentMethodNonce'] = $form->nonce;
 				// IMPORTANT: Remove customerId when using nonce - pass customer data as nested object instead
@@ -555,6 +558,9 @@ class Gateway extends BaseGateway
 			} elseif ($form->token) {
 				$data['paymentMethodToken'] = $form->token;
 			}
+
+			// Log what we're sending to Braintree
+			Craft::error('Braintree transaction data: has_customerId=' . (isset($data['customerId']) ? 'YES' : 'NO') . ', has_paymentMethodNonce=' . (isset($data['paymentMethodNonce']) ? 'YES' : 'NO') . ', has_paymentMethodToken=' . (isset($data['paymentMethodToken']) ? 'YES' : 'NO'), __METHOD__);
 			if ($form->deviceData) {
 				$data['deviceData'] = $form->deviceData;
 			}
